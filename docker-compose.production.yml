@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # ─── NGINX SSL REVERSE PROXY ───────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: storyforge_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - storyforge_net
+
+  # ─── NEXT.JS FRONTEND ──────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: storyforge_frontend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=https://api.storyforge.ai
+      - NEXT_PUBLIC_CDN_URL=https://cdn.storyforge.ai
+    networks:
+      - storyforge_net
+
+  # ─── EXPRESS BACKEND API ──────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: storyforge_backend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    env_file:
+      - .env.production
+    depends_on:
+      - redis
+    networks:
+      - storyforge_net
+
+  # ─── BULLMQ WORKER SWARM ──────────────────────────────────────────────────
+  workers:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: storyforge_workers
+    restart: always
+    command: ["node", "dist/index.js"]
+    environment:
+      - NODE_ENV=production
+      - IS_WORKER_NODE=true
+    env_file:
+      - .env.production
+    depends_on:
+      - redis
+      - backend
+    deploy:
+      replicas: 3
+    networks:
+      - storyforge_net
+
+  # ─── REDIS CLUSTER / CACHE ────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: storyforge_redis
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - storyforge_net
+
+  # ─── PROMETHEUS TELEMETRY ──────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.49.1
+    container_name: storyforge_prometheus
+    restart: always
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - storyforge_net
+
+  # ─── GRAFANA DASHBOARD ────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: storyforge_grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=StoryForge#Grafana2026!
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - storyforge_net
+
+networks:
+  storyforge_net:
+    driver: bridge
+
+volumes:
+  redis_data:
+  prometheus_data:
+  grafana_data:

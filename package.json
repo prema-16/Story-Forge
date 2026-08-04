@@ -1,0 +1,41 @@
+{
+  "name": "storyforge-ai",
+  "version": "3.0.0",
+  "description": "Enterprise AI YouTube Video Generation Platform",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "workspaces": [
+    "packages/*",
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "setup": "npm run setup --prefix backend",
+    "dev": "turbo run dev --parallel",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter storyforge-backend dev",
+    "build": "turbo run build",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:backend": "pnpm --filter storyforge-backend build",
+    "test": "turbo run test",
+    "test:backend": "pnpm --filter storyforge-backend test",
+    "test:frontend": "pnpm --filter frontend test",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,css,md}\" --ignore-path .gitignore",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

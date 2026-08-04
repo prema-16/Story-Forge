@@ -1,0 +1,144 @@
+version: '3.9'
+
+# ─── StoryForge AI — Docker Compose (Development) ────────────────────────────
+# Usage:
+#   docker compose up -d          # Start all services
+#   docker compose logs -f        # Stream logs
+#   docker compose down -v        # Stop and remove volumes
+#
+# Note: Backend and frontend are run locally (not in Docker) during development.
+# Only infrastructure services (MongoDB, Redis, Jaeger) are containerised here.
+
+services:
+  # ─── MongoDB 7 ─────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: storyforge-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: storyforge
+      MONGO_INITDB_ROOT_PASSWORD: storyforge_dev_password
+      MONGO_INITDB_DATABASE: storyforge
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - storyforge-network
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ─── Redis 7.2 ─────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: storyforge-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes --requirepass storyforge_redis_dev
+    volumes:
+      - redis_data:/data
+    networks:
+      - storyforge-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'storyforge_redis_dev', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ─── Jaeger (OpenTelemetry Trace Collector) ─────────────────────────────────
+  # Access UI at http://localhost:16686
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    container_name: storyforge-jaeger
+    restart: unless-stopped
+    ports:
+      - '16686:16686'  # Jaeger UI
+      - '4317:4317'    # OTLP gRPC
+      - '4318:4318'    # OTLP HTTP
+      - '14268:14268'  # Jaeger HTTP thrift
+    environment:
+      COLLECTOR_OTLP_ENABLED: 'true'
+    networks:
+      - storyforge-network
+
+  # ─── Backend (Development) ─────────────────────────────────────────────────
+  # Only enabled when running full Docker stack. For local dev, run pnpm dev:backend instead.
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: storyforge-backend
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      # Docker service hostnames (override local .env values)
+      MONGODB_URI: mongodb://storyforge:storyforge_dev_password@mongodb:27017/storyforge?authSource=admin
+      REDIS_URL: redis://:storyforge_redis_dev@redis:6379
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+    env_file:
+      - ./backend/.env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src:delegated
+      - /app/node_modules
+    networks:
+      - storyforge-network
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:5000/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles:
+      - full  # Only start with: docker compose --profile full up
+
+  # ─── Frontend (Development) ────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: storyforge-frontend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:5000/api
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_NAME: StoryForge AI
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./frontend/src:/app/src:delegated
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - storyforge-network
+    profiles:
+      - full  # Only start with: docker compose --profile full up
+
+# ─── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ─── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  storyforge-network:
+    driver: bridge

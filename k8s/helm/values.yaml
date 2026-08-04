@@ -1,0 +1,72 @@
+global:
+  imageRegistry: ghcr.io/storyforge
+  imagePullSecret: ghcr-token
+  environment: staging
+  namespace: storyforge
+
+backend:
+  image: backend
+  tag: latest
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 50
+    cpuTargetUtilization: 60
+  probes:
+    liveness: /live
+    readiness: /ready
+
+frontend:
+  image: frontend
+  tag: latest
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 20
+    cpuTargetUtilization: 65
+
+ingress:
+  enabled: true
+  className: nginx
+  tls: true
+  certIssuer: letsencrypt-prod
+  hosts:
+    api: api.storyforge.ai
+    app: app.storyforge.ai
+
+regions:
+  primary: us-east-1
+  all:
+    - us-east-1
+    - us-west-2
+    - eu-west-1
+    - ap-south-1
+    - ap-southeast-1
+    - ap-southeast-2
+
+monitoring:
+  prometheusEnabled: true
+  grafanaEnabled: true
+  jaegerEnabled: true
+  lokiEnabled: true
+  alertmanagerEnabled: true
+
+deployment:
+  strategy: blueGreen  # blueGreen | canary | rollingUpdate
+  canaryWeight: 10      # % of traffic to canary (if strategy=canary)

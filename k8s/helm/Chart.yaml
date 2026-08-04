@@ -1,0 +1,15 @@
+name: storyforge
+version: 1.0.0
+description: StoryForge AI V3 — Enterprise AI Media Platform
+appVersion: "3.0.0"
+maintainers:
+  - name: StoryForge Engineering
+    email: engineering@storyforge.ai
+keywords:
+  - ai
+  - video
+  - enterprise
+  - media
+home: https://storyforge.ai
+sources:
+  - https://github.com/storyforge/storyforge-ai

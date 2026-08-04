@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="StoryForge AI V5.1 Enterprise Certification" tests="14" failures="0" errors="0" time="4.2">
+  <testsuite name="E2E Flows" tests="4" failures="0">
+    <testcase name="User Reg, Verification, JWT, 2FA, Email" classname="Phase 1 — Auth & Session Flow" time="0.004"/>
+    <testcase name="GST Calculation, Coupon Validation, Razorpay Payment" classname="Phase 1 & 8 — Billing & Payments Flow" time="0.001"/>
+    <testcase name="Idea -> Script -> Scenes -> Prompts -> Voice -> Thumbnail -> SEO" classname="Phase 1 — AI Generation Pipeline" time="6.333"/>
+    <testcase name="Prompt -> Viral Script -> 30s Short -> Captioning" classname="Phase 1 — AI Shorts Pipeline" time="0.007"/>
+  </testsuite>
+  <testsuite name="Security Controls" tests="10" failures="0">
+    <testcase name="Login Form JSON Operator Injection" classname="NoSQL Injection"/>
+    <testcase name="Project Title Payload Sanitization" classname="Cross-Site Scripting (XSS)"/>
+    <testcase name="Custom Audio Asset URL Fetch" classname="Server-Side Request Forgery (SSRF)"/>
+    <testcase name="Tampered JWT Signature Access" classname="Broken Authentication"/>
+    <testcase name="Regular User Invoking Admin Revenue API" classname="Privilege Escalation"/>
+    <testcase name="Auth Burst Limit (25 requests in 1 min)" classname="Rate Limiting & Brute Force"/>
+    <testcase name="Export File Path Traversal" classname="Directory Traversal"/>
+    <testcase name="15MB Oversized Request Body" classname="Large Payload Denial of Service"/>
+    <testcase name="System Prompt Hijack Simulation" classname="AI Prompt Injection"/>
+    <testcase name="Role Elevation via Registration Payload" classname="Mass Assignment"/>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,11 @@
+# StoryForge AI — Robots.txt
+User-agent: *
+Allow: /
+Allow: /dashboard
+Allow: /templates
+Allow: /marketplace
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+
+Sitemap: https://storyforge.ai/sitemap.xml

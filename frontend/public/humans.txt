@@ -1,0 +1,13 @@
+/* TEAM */
+  Lead Architect & Engineer: StoryForge AI Engineering Team
+  Site: https://storyforge.ai
+  Location: San Francisco, CA & Global Remote
+
+/* THANKS */
+  OpenAI, Anthropic, Google Gemini, Groq, DeepSeek, ElevenLabs, Runway, BullMQ, Next.js, Express, MongoDB Atlas, Redis
+
+/* SITE TECHNOLOGY */
+  Standards: HTML5, CSS3, ES2026, TypeScript 5.7, WebAssembly
+  Components: React 19, Next.js 16, TailwindCSS, Framer Motion
+  Backend: Node.js 20, Express 4, BullMQ, ioredis, Mongoose 8
+  Infrastructure: Docker, NGINX, Let's Encrypt SSL, Cloudinary, Cloudflare
