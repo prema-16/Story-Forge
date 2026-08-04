@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MailCheck, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
@@ -8,7 +8,7 @@ import { AuthLayout } from '@/components/layout/auth-layout';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 
-export default function EmailVerifyPage() {
+function VerifyContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const router = useRouter();
@@ -22,7 +22,6 @@ export default function EmailVerifyPage() {
       return;
     }
 
-    // Verify token
     const timer = setTimeout(() => {
       setStatus('success');
       toast.success('Email verified successfully!');
@@ -79,5 +78,13 @@ export default function EmailVerifyPage() {
         )}
       </div>
     </AuthLayout>
+  );
+}
+
+export default function EmailVerifyPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-white/50">Loading verification session...</div>}>
+      <VerifyContent />
+    </Suspense>
   );
 }

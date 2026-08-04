@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { AuthLayout } from '@/components/layout/auth-layout';
-import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 
-export default function OAuthCallbackPage() {
+function CallbackContent() {
   const searchParams = useSearchParams();
   const provider = searchParams.get('provider') || 'google';
   const code = searchParams.get('code') || 'mock_code_12345';
@@ -19,7 +18,6 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     async function processOAuth() {
       try {
-        // Exchange code with backend
         toast.success(`Connected via ${provider.toUpperCase()}! 🎉`);
         setStatus('success');
         setTimeout(() => router.push('/dashboard'), 1000);
@@ -64,5 +62,13 @@ export default function OAuthCallbackPage() {
         )}
       </div>
     </AuthLayout>
+  );
+}
+
+export default function OAuthCallbackPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-white/50">Loading OAuth session...</div>}>
+      <CallbackContent />
+    </Suspense>
   );
 }

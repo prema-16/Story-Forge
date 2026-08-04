@@ -7,7 +7,7 @@ interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   value: string | number;
   icon: React.ReactNode;
-  color?: 'purple' | 'green' | 'amber' | 'cyan' | 'pink';
+  color?: 'purple' | 'green' | 'amber' | 'cyan' | 'pink' | 'red';
   change?: number;
   changeLabel?: string;
   suffix?: string;
@@ -43,6 +43,12 @@ const colorMap = {
     border: 'border-pink-500/15',
     icon: 'text-pink-400',
     text: 'text-pink-300',
+  },
+  red: {
+    bg: 'bg-red-500/10',
+    border: 'border-red-500/15',
+    icon: 'text-red-400',
+    text: 'text-red-300',
   },
 };
 

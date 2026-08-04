@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Lock, Eye, EyeOff, Check, ArrowRight } from 'lucide-react';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const router = useRouter();
@@ -20,7 +20,6 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Strength rules
   const hasMinLength = password.length >= 8;
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
@@ -71,7 +70,6 @@ export default function ResetPasswordPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {/* Strength Meter */}
         <div className="space-y-2">
           <div className="flex gap-1 h-1.5 rounded-full overflow-hidden bg-white/5">
             {[1, 2, 3, 4].map((level) => (
@@ -124,5 +122,13 @@ export default function ResetPasswordPage() {
         </Button>
       </form>
     </AuthLayout>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-white/50">Loading reset session...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
