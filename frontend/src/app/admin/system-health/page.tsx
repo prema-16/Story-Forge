@@ -63,14 +63,14 @@ export default function SystemHealthDashboardPage() {
             label="Database (MongoDB)"
             value={mongoStatus.toUpperCase()}
             icon={<Database />}
-            color={mongoStatus === 'Healthy' ? 'purple' : 'red'}
+            color={mongoStatus === 'Healthy' ? 'purple' : 'pink'}
             changeLabel="Atomic Credit & Audit Store"
           />
           <StatCard
             label="Queue & Cache (Redis)"
             value={redisInfo.status.toUpperCase()}
             icon={<Server />}
-            color={redisInfo.status === 'connected' ? 'green' : 'red'}
+            color={redisInfo.status === 'connected' ? 'green' : 'pink'}
             changeLabel={redisInfo.message}
           />
           <StatCard

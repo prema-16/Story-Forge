@@ -137,7 +137,7 @@ export default function AdminQueuesPage() {
             label="Redis Status"
             value={redisStatus.toUpperCase()}
             icon={<Server />}
-            color={redisStatus === 'connected' ? 'green' : 'red'}
+            color={redisStatus === 'connected' ? 'green' : 'pink'}
             changeLabel={redisStatus === 'connected' ? 'Port 6379 Active' : 'Disconnected'}
           />
           <StatCard
