@@ -32,14 +32,16 @@ const envSchema = z.object({
   // AI Providers — Image
   STABILITY_AI_API_KEY: z.string().optional(),
   IDEOGRAM_API_KEY: z.string().optional(),
-  DEFAULT_IMAGE_PROVIDER: z.enum(['dalle', 'stability', 'ideogram', 'mock']).default('mock'),
+  HF_TOKEN: z.string().optional(),
+  HF_MODEL: z.string().default('stabilityai/stable-diffusion-xl-base-1.0'),
+  DEFAULT_IMAGE_PROVIDER: z.enum(['dalle', 'stability', 'ideogram', 'huggingface', 'mock']).default('mock'),
 
   // AI Providers — Video
   RUNWAY_API_KEY: z.string().optional(),
   KLING_API_KEY: z.string().optional(),
   PIKA_API_KEY: z.string().optional(),
   LUMA_API_KEY: z.string().optional(),
-  DEFAULT_VIDEO_PROVIDER: z.enum(['runway', 'kling', 'pika', 'luma', 'mock']).default('mock'),
+  DEFAULT_VIDEO_PROVIDER: z.enum(['runway', 'kling', 'pika', 'luma', 'mock']).default('luma'),
 
   // AI Providers — Voice
   ELEVENLABS_API_KEY: z.string().optional(),
@@ -62,6 +64,9 @@ const envSchema = z.object({
   YOUTUBE_CLIENT_ID: z.string().optional(),
   YOUTUBE_CLIENT_SECRET: z.string().optional(),
   YOUTUBE_REDIRECT_URI: z.string().optional(),
+
+  // Development seed user (dev only — never set in production)
+  DEMO_USER_PASSWORD: z.string().optional(),
 
   // Feature Flags
   ENABLE_MOCK_AI: z.string().default('true').transform((v) => v === 'true'),

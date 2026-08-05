@@ -118,10 +118,16 @@ async function seedDemoUser(): Promise<void> {
     const existing = await User.findOne({ email: demoEmail });
 
     if (!existing) {
+      const demoPassword = env.DEMO_USER_PASSWORD;
+      if (!demoPassword) {
+        logger.warn('⚠️  DEMO_USER_PASSWORD not set — skipping demo user creation');
+        return;
+      }
+
       const demoUser = await User.create({
         name: 'Enterprise Creator (Dev)',
         email: demoEmail,
-        password: 'StoryForge#2026!',
+        password: demoPassword,
         credits: 10000,
         creditsTotal: 10000,
         creditsUsed: 0,
@@ -130,7 +136,7 @@ async function seedDemoUser(): Promise<void> {
       });
 
       await UserMemory.create({ userId: demoUser._id });
-      logger.info('🌱 Enterprise Demo user seeded: demo@storyforge.ai / StoryForge#2026! (10,000 Credits)');
+      logger.info('🌱 Enterprise Demo user seeded: demo@storyforge.ai (10,000 Credits)');
     } else if (existing.plan !== 'enterprise' || existing.credits < 10000) {
       existing.plan = 'enterprise';
       existing.credits = 10000;
