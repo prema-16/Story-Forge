@@ -102,8 +102,8 @@ export class AppError extends Error {
     this.code = code;
     this.isOperational = true;
     this.context = context;
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
+    if ((Error as any).captureStackTrace) {
+      (Error as any).captureStackTrace(this, this.constructor);
     }
   }
 
