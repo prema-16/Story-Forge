@@ -102,7 +102,9 @@ export class AppError extends Error {
     this.code = code;
     this.isOperational = true;
     this.context = context;
-    Error.captureStackTrace(this, this.constructor);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
   }
 
   /** Factory: 400 Bad Request */
