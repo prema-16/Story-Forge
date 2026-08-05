@@ -56,11 +56,11 @@ export class PermissionsService {
     }
 
     if (orgRole) {
-      (DEFAULT_ORG_ROLE_PERMISSIONS[orgRole] || []).forEach((p) => permSet.add(p));
+      (DEFAULT_ORG_ROLE_PERMISSIONS[orgRole] || []).forEach((p: string) => permSet.add(p));
     }
 
     if (teamRole) {
-      (DEFAULT_TEAM_ROLE_PERMISSIONS[teamRole] || []).forEach((p) => permSet.add(p));
+      (DEFAULT_TEAM_ROLE_PERMISSIONS[teamRole] || []).forEach((p: string) => permSet.add(p));
     }
 
     if (permSet.size === 0) {
