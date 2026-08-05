@@ -19,3 +19,9 @@ build/
 .DS_Store
 coverage/
 .turbo/
+
+# Compiled JS artifacts from source (packages build to dist/, not src/)
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+frontend/src/__tests__/**/*.js
+frontend/src/__tests__/**/*.js.map
