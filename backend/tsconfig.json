@@ -4,6 +4,8 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmitOnError": false,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -16,9 +18,7 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@storyforge/shared": ["../packages/shared/src/index.ts"],
-      "@storyforge/shared/*": ["../packages/shared/src/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -3,7 +3,6 @@ import path from 'path';
 import { realAIProviderValidator, ProviderValidationResult } from '../evaluation/realAIProviderValidator';
 import { realVideoBatchInspector, BatchRenderValidationReport } from '../rendering/realVideoBatchInspector';
 import { realServicesAndDeploymentAuditor } from './realServicesAndDeploymentAuditor';
-import { runBrowserAndSoakSuite } from '../../../frontend/src/__tests__/crossBrowserAndSoakInspector';
 import { logger } from '../config/logger';
 
 export interface BetaCreatorTelemetryReport {
