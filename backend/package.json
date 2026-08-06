@@ -6,13 +6,15 @@
   "scripts": {
     "setup": "ts-node -r tsconfig-paths/register scripts/setup.ts",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "build": "tsc --project tsconfig.json && node scripts/postbuild.js",
+    "build": "npm run build:shared && npm install && tsc --project tsconfig.json && node scripts/postbuild.js",
+    "build:shared": "npm run build --prefix ../packages/shared",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
     "test": "jest --passWithNoTests",
     "test:e2e": "jest --config jest.e2e.config.js --passWithNoTests"
   },
   "dependencies": {
+    "@storyforge/shared": "file:../packages/shared",
     "@anthropic-ai/sdk": "^0.39.0",
     "@aws-sdk/client-s3": "^3.600.0",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

@@ -16,15 +16,14 @@ services:
           property: url
 
   # ─── BACKEND EXPRESS API SERVICE ───────────────────────────────────────────
-  # NOTE: rootDir is intentionally NOT set here.
-  # The backend depends on @storyforge/shared (packages/shared), which lives
-  # outside the backend/ folder. We must install & build from the repo root
-  # so that the workspace symlink resolves correctly at runtime.
+  # build: npm run build  →  builds @storyforge/shared first via build:shared,
+  # then npm installs the file: dep, then compiles TypeScript.
   - type: web
     name: storyforge-backend
     runtime: node
-    buildCommand: npm install && npm run build --prefix packages/shared && npm run build --prefix backend
-    startCommand: node backend/dist/index.js
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
