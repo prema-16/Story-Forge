@@ -10,10 +10,13 @@ let redisStatus: 'connected' | 'offline' | 'reconnecting' = 'offline';
 export function getIORedisClient(): Redis {
   if (ioRedisClient) return ioRedisClient;
 
+  const isTls = env.REDIS_URL.startsWith('rediss://') || env.REDIS_URL.includes('upstash.io');
+
   ioRedisClient = new IORedis(env.REDIS_URL, {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
     lazyConnect: true,
+    ...(isTls ? { tls: { rejectUnauthorized: false } } : {}),
     retryStrategy(times) {
       redisStatus = 'reconnecting';
       const delay = Math.min(times * 1000, 10000);
