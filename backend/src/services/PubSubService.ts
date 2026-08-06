@@ -107,13 +107,8 @@ class PubSubService {
   private ensureSubscriber(channel: string): void {
     // Bootstrap the shared subscriber connection once
     if (!this.subscriber) {
-      this.subscriber = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', {
-        maxRetriesPerRequest: null,
-        enableReadyCheck: false,
+      this.subscriber = getIORedisClient().duplicate({
         lazyConnect: false,
-        retryStrategy(times) {
-          return Math.min(times * 1000, 10_000);
-        },
       });
 
       this.subscriber.on('connect', () => {

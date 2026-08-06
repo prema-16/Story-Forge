@@ -10,9 +10,14 @@ let redisStatus: 'connected' | 'offline' | 'reconnecting' = 'offline';
 export function getIORedisClient(): Redis {
   if (ioRedisClient) return ioRedisClient;
 
-  const isTls = env.REDIS_URL.startsWith('rediss://') || env.REDIS_URL.includes('upstash.io');
+  let url = env.REDIS_URL;
+  if (url.startsWith('redis://') && url.includes('upstash.io')) {
+    url = url.replace('redis://', 'rediss://');
+  }
 
-  ioRedisClient = new IORedis(env.REDIS_URL, {
+  const isTls = url.startsWith('rediss://') || url.includes('upstash.io');
+
+  ioRedisClient = new IORedis(url, {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
     lazyConnect: true,
@@ -36,7 +41,7 @@ export function getIORedisClient(): Redis {
     if (!hasLoggedRedisError) {
       logger.warn(`
 ================================================================
-⚠️ REDIS CONNECTION WARNING (${env.REDIS_URL})
+⚠️ REDIS CONNECTION WARNING (${url})
 ----------------------------------------------------------------
 Status: Redis Offline
 Video Generation Disabled: Queues Degraded
