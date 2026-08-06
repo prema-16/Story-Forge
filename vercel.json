@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "installCommand": "npm install",
+  "outputDirectory": "frontend/.next",
   "buildCommand": "npm run build --prefix frontend",
+  "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/api/backend/:path*",
+      "source": "/api/:path*",
       "destination": "https://storyforge-backend.onrender.com/api/:path*"
     }
   ]
