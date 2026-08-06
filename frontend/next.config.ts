@@ -15,10 +15,15 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   async rewrites() {
+    const defaultBackend =
+      process.env.NODE_ENV === 'production'
+        ? 'https://storyforge-backend.onrender.com/api'
+        : 'http://localhost:5000/api';
+    const targetApi = process.env.NEXT_PUBLIC_API_URL || defaultBackend;
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/:path*`,
+        destination: `${targetApi}/:path*`,
       },
     ];
   },
