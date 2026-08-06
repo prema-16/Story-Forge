@@ -105,8 +105,8 @@ async function seedSubscriptionPlans(): Promise<void> {
 }
 
 async function seedDemoUser(): Promise<void> {
-  // BUG 002: Seed script only runs inside development mode, never in production code
-  if (env.NODE_ENV !== 'development') {
+  // Only seed if DEMO_USER_PASSWORD is explicitly set (works in all environments)
+  if (!env.DEMO_USER_PASSWORD) {
     return;
   }
 
@@ -118,11 +118,7 @@ async function seedDemoUser(): Promise<void> {
     const existing = await User.findOne({ email: demoEmail });
 
     if (!existing) {
-      const demoPassword = env.DEMO_USER_PASSWORD;
-      if (!demoPassword) {
-        logger.warn('⚠️  DEMO_USER_PASSWORD not set — skipping demo user creation');
-        return;
-      }
+      const demoPassword = env.DEMO_USER_PASSWORD!;
 
       const demoUser = await User.create({
         name: 'Enterprise Creator (Dev)',
