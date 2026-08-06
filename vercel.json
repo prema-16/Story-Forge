@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "outputDirectory": "frontend/.next",
-  "buildCommand": "npm run build --prefix frontend",
-  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/api/:path*",
