@@ -6,7 +6,7 @@
   "scripts": {
     "setup": "ts-node -r tsconfig-paths/register scripts/setup.ts",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json && node scripts/postbuild.js",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
     "test": "jest --passWithNoTests",
