@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Bell, Command, Zap, Search, ChevronDown, User,
-  Settings, LogOut, CreditCard,
+  Settings, LogOut, CreditCard, Menu,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { useCommandPalette } from '../ui/command-palette';
 import { Avatar } from '../ui/avatar';
 
@@ -18,6 +19,7 @@ interface HeaderProps {
 
 export const Header = ({ title, subtitle }: HeaderProps) => {
   const { user, logout } = useAuthStore();
+  const { toggleSidebar } = useSettingsStore();
   const router = useRouter();
   const { open: openPalette } = useCommandPalette();
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
@@ -39,17 +41,24 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
 
   return (
     <header className="app-header">
-      {/* Left: Title */}
+      {/* Left: Title + Mobile Menu */}
       <div className="header-left">
-        <div>
-          <h2 className="header-title">{title}</h2>
-          {subtitle && <p className="header-subtitle">{subtitle}</p>}
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white/70 hover:text-white"
+          title="Toggle Navigation"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+        <div className="min-w-0">
+          <h2 className="header-title truncate">{title}</h2>
+          {subtitle && <p className="header-subtitle truncate">{subtitle}</p>}
         </div>
       </div>
 
       {/* Center: Command Palette trigger */}
       <button className="palette-trigger" onClick={openPalette}>
-        <Search className="h-3.5 w-3.5" />
+        <Search className="h-3.5 w-3.5 flex-shrink-0" />
         <span>Search anything...</span>
         <kbd className="palette-kbd">
           <Command className="h-2.5 w-2.5" />K
@@ -60,7 +69,7 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
       <div className="header-right">
         {/* Credits pill */}
         <div className="credits-pill" title={`${user?.credits} credits remaining`}>
-          <Zap className="h-3.5 w-3.5 text-amber-400" />
+          <Zap className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
           <span className="credits-count">{user?.credits ?? 0}</span>
           <div className="credits-bar-track">
             <div
@@ -70,7 +79,7 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
           </div>
         </div>
 
-        {/* Notifications (placeholder — Phase 6) */}
+        {/* Notifications */}
         <button className="icon-btn-header" title="Notifications">
           <Bell className="h-4 w-4" />
           <span className="notif-dot" />
@@ -145,7 +154,7 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
           gap: 16px;
           flex-shrink: 0;
         }
-        .header-left { flex: 1; min-width: 0; }
+        .header-left { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
         .header-title { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: -0.02em; font-family: 'Space Grotesk', sans-serif; }
         .header-subtitle { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 1px; }
 
@@ -158,7 +167,7 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
           color: rgba(255,255,255,0.3); font-size: 12px;
           cursor: pointer; transition: all 0.15s;
           white-space: nowrap;
-          min-width: 200px;
+          min-width: 180px;
         }
         .palette-trigger:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); }
         .palette-kbd {
@@ -240,6 +249,17 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
         .dropdown-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
         .dropdown-item.danger { color: rgba(239,68,68,0.8); }
         .dropdown-item.danger:hover { background: rgba(239,68,68,0.08); color: #f87171; }
+
+        @media (max-width: 640px) {
+          .app-header { padding: 0 10px; gap: 8px; }
+          .header-title { font-size: 14px; }
+          .header-subtitle { display: none; }
+          .palette-trigger { min-width: auto; padding: 7px; }
+          .palette-trigger span, .palette-kbd { display: none; }
+          .user-name { display: none; }
+          .credits-bar-track { display: none; }
+          .header-right { gap: 4px; }
+        }
       `}</style>
     </header>
   );

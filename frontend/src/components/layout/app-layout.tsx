@@ -21,6 +21,14 @@ export const AppLayout = ({ children, title, subtitle }: AppLayoutProps) => {
   const { sidebarCollapsed } = useSettingsStore();
   const { isOpen, close } = useCommandPalette();
   const router = useRouter();
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetchMe().then(() => {
@@ -38,7 +46,7 @@ export const AppLayout = ({ children, title, subtitle }: AppLayoutProps) => {
       <Sidebar />
       <motion.div
         initial={false}
-        animate={{ marginLeft: sidebarCollapsed ? 72 : 260 }}
+        animate={{ marginLeft: isMobile ? 0 : (sidebarCollapsed ? 72 : 260) }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
         className="flex flex-1 flex-col min-w-0 overflow-hidden"
       >

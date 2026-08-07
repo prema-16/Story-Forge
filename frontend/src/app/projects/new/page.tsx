@@ -69,11 +69,39 @@ export default function NewProjectWizard() {
     const tid = toast.loading('Initializing AI Director workflow plan...');
     try {
       const { data } = await projectsApi.create(formData);
+      if (typeof window !== 'undefined' && data?.project) {
+        sessionStorage.setItem(`project_draft_${data.project._id}`, JSON.stringify(data.project));
+      }
       toast.success('Workflow planned! Launching AI Studio...', { id: tid });
       router.push(`/projects/${data.project._id}`);
     } catch {
       // Demo fallback when backend API is offline
       const mockProjectId = `proj-${Date.now()}`;
+      const draftProject = {
+        _id: mockProjectId,
+        userId: 'user_1',
+        title: formData.title || 'Untitled Project',
+        idea: formData.idea || 'Video project',
+        genre: formData.genre || 'documentary',
+        videoLength: formData.videoLength || 10,
+        style: formData.style || 'cinematic',
+        aspectRatio: formData.aspectRatio || '16:9',
+        language: formData.language || 'en',
+        status: 'draft',
+        currentStep: 1,
+        totalSteps: 10,
+        creditsTotal: 35,
+        creditsUsed: 0,
+        workflowSteps: [
+          { step: 'ai-writer', status: 'pending', creditsUsed: 0 },
+          { step: 'ai-scene-planner', status: 'pending', creditsUsed: 0 },
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`project_draft_${mockProjectId}`, JSON.stringify(draftProject));
+      }
       toast.success('Workflow planned! Launching AI Studio...', { id: tid });
       router.push(`/projects/${mockProjectId}`);
     } finally {
@@ -83,32 +111,41 @@ export default function NewProjectWizard() {
 
   return (
     <AppLayout title="New Project Wizard" subtitle="AI Director workflow orchestrator configuration">
-      <div className="max-w-4xl mx-auto space-y-8 pb-16">
+      <div className="max-w-4xl mx-auto space-y-6 pb-16">
         {/* Stepper Header */}
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 px-1 -mx-2 sm:mx-0">
           {wizardSteps.map((step) => {
             const isDone = currentStep > step.id;
             const isCurrent = currentStep === step.id;
 
             return (
-              <div key={step.id} className="flex items-center gap-2 flex-1 min-w-[120px]">
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => isDone && setCurrentStep(step.id)}
+                className={`flex items-center gap-2 flex-shrink-0 px-3 py-2 rounded-xl transition-all ${
+                  isCurrent
+                    ? 'bg-purple-600/20 border border-purple-500/40 text-white'
+                    : isDone
+                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                    : 'bg-white/5 border border-white/10 text-white/40'
+                }`}
+              >
                 <div
-                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all ${
+                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all ${
                     isDone
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      ? 'bg-emerald-500/20 text-emerald-400'
                       : isCurrent
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                      : 'bg-white/5 text-white/40 border border-white/10'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
+                      : 'bg-white/10 text-white/50'
                   }`}
                 >
-                  {isDone ? <CheckCircle2 className="h-4 w-4" /> : step.id}
+                  {isDone ? <CheckCircle2 className="h-3.5 w-3.5" /> : step.id}
                 </div>
-                <div className="hidden sm:block min-w-0">
-                  <p className={`text-xs font-semibold truncate ${isCurrent ? 'text-white' : 'text-white/40'}`}>
-                    {step.title}
-                  </p>
-                </div>
-              </div>
+                <span className={`text-xs font-semibold whitespace-nowrap ${isCurrent ? 'text-white' : 'text-white/50'}`}>
+                  {step.title}
+                </span>
+              </button>
             );
           })}
         </div>

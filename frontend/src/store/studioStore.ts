@@ -262,14 +262,14 @@ const DEFAULT_INITIAL_ASSETS: AssetItem[] = [
 ];
 
 export const useStudioStore = create<StudioState>((set, get) => ({
-  project: DEFAULT_FALLBACK_PROJECT,
-  script: DEFAULT_FALLBACK_SCRIPT,
+  project: null,
+  script: null,
   scenes: [],
   thumbnail: null,
   voice: null,
   seo: null,
   prompts: [],
-  videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  videoUrl: null,
 
   tracks: DEFAULT_INITIAL_TRACKS,
   markers: [{ id: 'm1', time: 8, label: 'Chapter 2 Start', color: '#ec4899' }],
@@ -304,6 +304,17 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   setProject: (project) => set({ project }),
 
   loadProject: async (id: string) => {
+    // Clear previous project & script state to prevent displaying stale data
+    set({
+      project: null,
+      script: null,
+      scenes: [],
+      thumbnail: null,
+      voice: null,
+      seo: null,
+      videoUrl: null,
+    });
+
     try {
       const data = await projectsApi.getById(id);
       if (data?.project) {
@@ -317,9 +328,56 @@ export const useStudioStore = create<StudioState>((set, get) => ({
           prompts: [],
           videoUrl: data.exports?.[0]?.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         });
+        return;
       }
     } catch {
-      // Keep initial default mock data if offline
+      // Check session storage draft if backend API is offline
+      if (typeof window !== 'undefined') {
+        const cached = sessionStorage.getItem(`project_draft_${id}`);
+        if (cached) {
+          try {
+            const draftProject = JSON.parse(cached);
+            set({
+              project: draftProject,
+              script: null,
+              scenes: [],
+              thumbnail: null,
+              voice: null,
+              seo: null,
+            });
+            return;
+          } catch {}
+        }
+      }
+
+      // If no cached draft, create a dynamic placeholder matching this project ID
+      set({
+        project: {
+          _id: id,
+          userId: 'user_1',
+          title: `Project #${id.slice(-6)}`,
+          idea: 'AI generated video project',
+          genre: 'documentary',
+          videoLength: 10,
+          style: 'cinematic',
+          aspectRatio: '16:9',
+          language: 'en',
+          status: 'draft',
+          currentStep: 1,
+          totalSteps: 10,
+          creditsTotal: 35,
+          creditsUsed: 5,
+          workflowSteps: [
+            { step: 'ai-writer', status: 'pending', creditsUsed: 0 },
+            { step: 'ai-scene-planner', status: 'pending', creditsUsed: 0 },
+          ],
+          isFavorite: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        script: null,
+        scenes: [],
+      });
     }
   },
 

@@ -66,6 +66,14 @@ export const Sidebar = () => {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const { sidebarCollapsed, toggleSidebar } = useSettingsStore();
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
@@ -75,12 +83,24 @@ export const Sidebar = () => {
   );
 
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: sidebarCollapsed ? 72 : 260 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed left-0 top-0 h-screen z-40 flex flex-col glass-apple border-r border-white/[0.08] overflow-hidden"
-    >
+    <>
+      {/* Mobile backdrop */}
+      {isMobile && !sidebarCollapsed && (
+        <div
+          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+        />
+      )}
+
+      <motion.aside
+        initial={false}
+        animate={{
+          width: isMobile ? 260 : (sidebarCollapsed ? 72 : 260),
+          x: isMobile && sidebarCollapsed ? -260 : 0,
+        }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed left-0 top-0 h-screen z-40 flex flex-col glass-apple border-r border-white/[0.08] overflow-hidden"
+      >
       {/* Logo */}
       <div className="flex items-center h-16 px-4 border-b border-white/[0.06] flex-shrink-0">
         <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
