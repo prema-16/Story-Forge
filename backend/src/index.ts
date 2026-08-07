@@ -53,6 +53,9 @@ import './agents/AIVideoAgents';
 
 const app = express();
 
+// Trust reverse proxies (Render, Vercel, Cloudflare) for accurate req.ip and rate limiting
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(
   helmet({
@@ -89,7 +92,7 @@ app.use(suspiciousLoginDetector);
 // Rate Limiting
 const globalLimiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX,
+  max: Math.max(env.RATE_LIMIT_MAX, 500),
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: 'Too many requests, please try again later' },
@@ -97,8 +100,10 @@ const globalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { success: false, error: 'Too many auth attempts' },
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many auth attempts, please try again later' },
 });
 
 app.use('/api/', globalLimiter);
