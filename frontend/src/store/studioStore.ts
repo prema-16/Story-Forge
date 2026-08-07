@@ -405,7 +405,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     set((state) => ({ isGenerating: { ...state.isGenerating, video: true } }));
     try {
       const res = await projectsApi.renderVideo(id);
-      if (res?.jobId) set({ activeJobId: res.jobId });
+      if (res?.data?.jobId) set({ activeJobId: res.data.jobId });
       await get().loadProject(id);
       toast.success('Video render queued! Processing video pipeline...');
     } catch (err: any) {
@@ -419,8 +419,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     set((state) => ({ isGenerating: { ...state.isGenerating, script: true } }));
     try {
       const res = await projectsApi.saveScript(id, data);
-      if (res?.script) set({ script: res.script });
-      if (res?.scenes) set({ scenes: res.scenes });
+      if (res?.data?.script) set({ script: res.data.script });
+      if (res?.data?.scenes) set({ scenes: res.data.scenes });
       await get().loadProject(id);
       toast.success('Custom script saved & scenes updated!');
     } catch (err: any) {
