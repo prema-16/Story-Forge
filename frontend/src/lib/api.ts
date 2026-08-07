@@ -29,16 +29,26 @@ export type {
 
 export function getApiBaseUrl(): string {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const formatUrl = (url: string) => {
+    let clean = url.trim().replace(/\/$/, '');
+    if (!clean.endsWith('/api')) {
+      clean = `${clean}/api`;
+    }
+    return clean;
+  };
+
   if (typeof window !== 'undefined') {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     if (!isLocalhost) {
       if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-        return envUrl;
+        return formatUrl(envUrl);
       }
-      return 'https://storyforge-backend.onrender.com/api';
+      return 'https://storyforge-backend-lxu1.onrender.com/api';
     }
   }
-  return envUrl ?? 'http://localhost:5000/api';
+
+  return envUrl ? formatUrl(envUrl) : 'http://localhost:5000/api';
 }
 
 const BASE_URL = getApiBaseUrl();
