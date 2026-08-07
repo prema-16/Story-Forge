@@ -78,6 +78,14 @@ export default function ShortsEditorPage() {
               <Share2 className="w-3.5 h-3.5 mr-1 inline" /> Multi-Platform Publish
             </button>
           </div>
+          <button
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="nav-render-btn"
+          >
+            {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-1 inline" /> : <Clapperboard className="w-4 h-4 mr-1 inline" />}
+            Render Short Video
+          </button>
         </div>
 
         <div className="editor-grid">
@@ -114,7 +122,7 @@ export default function ShortsEditorPage() {
                   {isGenerating ? (
                     <><RefreshCw className="w-5 h-5 animate-spin" /> &nbsp;Generating Video…</>
                   ) : (
-                    <><Clapperboard className="w-5 h-5" /> &nbsp;Generate Video</>  
+                    <><Clapperboard className="w-5 h-5" /> &nbsp;Generate Video & View Hooks</>  
                   )}
                 </button>
 
@@ -126,7 +134,7 @@ export default function ShortsEditorPage() {
                 )}
                 {generateSuccess && (
                   <div className="gen-success">
-                    <CheckCircle className="w-4 h-4 mr-1" /> Video generated! Switching to Hook Engine…
+                    <CheckCircle className="w-4 h-4 mr-1" /> Video generated! Pick a hook below or publish.
                   </div>
                 )}
               </div>
@@ -134,7 +142,11 @@ export default function ShortsEditorPage() {
 
             {activeTab === 'hooks' && (
               <div className="panel-box">
-                <h3 className="box-title">10+ AI Hook Variations</h3>
+                <div className="box-header">
+                  <h3 className="box-title">10+ AI Hook Variations</h3>
+                  <span className="token-badge text-amber-400">Click any hook to apply & render</span>
+                </div>
+
                 <div className="hooks-list">
                   {(currentProject?.hookVariations || []).map((h) => (
                     <div
@@ -142,7 +154,20 @@ export default function ShortsEditorPage() {
                       onClick={() => setSelectedHook(h)}
                       className={`hook-card ${selectedHook?.id === h.id ? 'active' : ''}`}
                     >
-                      <div className="hook-badge">{h.type.toUpperCase()} HOOK</div>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="hook-badge">{h.type.toUpperCase()} HOOK</div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedHook(h);
+                            handleGenerate();
+                          }}
+                          disabled={isGenerating}
+                          className="hook-render-btn"
+                        >
+                          <Clapperboard className="w-3 h-3 mr-1 inline" /> Apply & Render Video
+                        </button>
+                      </div>
                       <div className="hook-text">"{h.hookText}"</div>
                       <div className="hook-meta">
                         Retention Multiplier: <span className="text-emerald-400 font-bold">{h.estimatedRetentionMultiplier}x</span> · {h.explanation}
@@ -150,6 +175,40 @@ export default function ShortsEditorPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Primary Action Buttons for Hooks Tab */}
+                <div className="mt-4 space-y-3">
+                  <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="generate-video-btn"
+                  >
+                    {isGenerating ? (
+                      <><RefreshCw className="w-5 h-5 animate-spin" /> &nbsp;Rendering Short Video…</>
+                    ) : (
+                      <><Clapperboard className="w-5 h-5" /> &nbsp;Render Short Video with {selectedHook ? selectedHook.type.toUpperCase() : 'Selected'} Hook</>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('virality')}
+                    className="next-tab-btn"
+                  >
+                    Next Step: Virality Score & Publish ➔
+                  </button>
+                </div>
+
+                {/* Status feedback */}
+                {generateError && (
+                  <div className="gen-error">
+                    ⚠️ {generateError}
+                  </div>
+                )}
+                {generateSuccess && (
+                  <div className="gen-success">
+                    <CheckCircle className="w-4 h-4 mr-1" /> Video rendered successfully with applied hook!
+                  </div>
+                )}
               </div>
             )}
 
@@ -181,6 +240,28 @@ export default function ShortsEditorPage() {
                     <li>✔ Add a high-contrast sound effect at second 0:02 to hook initial scroll.</li>
                     <li>✔ Visual cut frequency is perfectly balanced for 30-second pacing.</li>
                   </ul>
+                </div>
+
+                {/* Action Buttons for Virality Tab */}
+                <div className="mt-4 space-y-3">
+                  <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="generate-video-btn"
+                  >
+                    {isGenerating ? (
+                      <><RefreshCw className="w-5 h-5 animate-spin" /> &nbsp;Rendering 9:16 Short Video…</>
+                    ) : (
+                      <><Clapperboard className="w-5 h-5" /> &nbsp;Render 9:16 Short Video</>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('publish')}
+                    className="next-tab-btn"
+                  >
+                    Proceed to Multi-Platform Publish ➔
+                  </button>
                 </div>
               </div>
             )}
@@ -313,8 +394,15 @@ export default function ShortsEditorPage() {
         .caption-overlay { position: absolute; bottom: 80px; left: 10px; right: 10px; text-align: center; }
         .mrbeast-style span { background: #facc15; color: #000; font-weight: 900; font-size: 16px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .play-overlay-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 56px; height: 56px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .player-meta { display: flex; gap: 8px; }
-        .meta-tag { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); padding: 4px 8px; background: rgba(255,255,255,0.04); border-radius: 6px; }
+        .nav-render-btn { display: flex; align-items: center; padding: 8px 16px; background: linear-gradient(135deg, #7c3aed, #ec4899); border: none; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .nav-render-btn:hover:not(:disabled) { opacity: 0.9; }
+        .nav-render-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .hook-render-btn { display: flex; align-items: center; padding: 4px 10px; background: rgba(124,58,237,0.25); border: 1px solid rgba(167,139,250,0.4); border-radius: 6px; color: #a78bfa; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+        .hook-render-btn:hover { background: rgba(124,58,237,0.45); color: #fff; }
+
+        .next-tab-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+        .next-tab-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
       `}</style>
     </AppLayout>
   );
