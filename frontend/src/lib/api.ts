@@ -27,11 +27,21 @@ export type {
   SEOData,
 };
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ??
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? 'https://storyforge-backend.onrender.com/api'
-    : 'http://localhost:5000/api');
+export function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+      if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+        return envUrl;
+      }
+      return 'https://storyforge-backend.onrender.com/api';
+    }
+  }
+  return envUrl ?? 'http://localhost:5000/api';
+}
+
+const BASE_URL = getApiBaseUrl();
 
 class ApiClient {
   private client: AxiosInstance;

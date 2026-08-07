@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { SSEEvent } from '../types';
+import { getApiBaseUrl } from '../lib/api';
 
 export function useSSE(projectId?: string) {
   const [event, setEvent] = useState<SSEEvent | null>(null);
@@ -9,7 +10,7 @@ export function useSSE(projectId?: string) {
   useEffect(() => {
     if (!projectId) return;
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/sse/projects/${projectId}/status`;
+    const url = `${getApiBaseUrl()}/sse/projects/${projectId}/status`;
     const eventSource = new EventSource(url);
 
     eventSource.onopen = () => {
