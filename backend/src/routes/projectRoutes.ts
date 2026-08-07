@@ -5,6 +5,7 @@ import {
   getProject,
   deleteProject,
   duplicateProject,
+  saveCustomScript,
   generateScript,
   generateScenes,
   generatePrompts,
@@ -25,6 +26,7 @@ router.use(protect);
 router.route('/').get(getProjects).post(createProject);
 router.route('/:id').get(getProject).delete(deleteProject);
 router.post('/:id/duplicate', duplicateProject);
+router.post('/:id/script', saveCustomScript);
 
 // AI Generation Steps (async — returns 202 with jobId)
 router.post('/:id/generate-script',    requireCredits(5),  generateScript);

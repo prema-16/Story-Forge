@@ -20,15 +20,20 @@ import toast from 'react-hot-toast';
 
 interface ScriptEditorProps {
   script: Script | null;
+  projectId?: string;
   onGenerate: () => void;
   isGenerating: boolean;
 }
 
-export const ScriptEditor = ({ script, onGenerate, isGenerating }: ScriptEditorProps) => {
+export const ScriptEditor = ({ script, projectId, onGenerate, isGenerating }: ScriptEditorProps) => {
   const [copied, setCopied] = useState(false);
   const [title, setTitle] = useState(script?.title || '');
   const [introduction, setIntroduction] = useState(script?.introduction || '');
   const [ending, setEnding] = useState(script?.ending || '');
+  const [customScriptText, setCustomScriptText] = useState('');
+  const [isSavingCustom, setIsSavingCustom] = useState(false);
+
+  const { saveScript } = useStudioStore();
 
   useEffect(() => {
     if (script) {
@@ -38,17 +43,67 @@ export const ScriptEditor = ({ script, onGenerate, isGenerating }: ScriptEditorP
     }
   }, [script]);
 
+  const handleSaveCustom = async () => {
+    if (!projectId) return;
+    if (!customScriptText.trim() && !introduction.trim()) {
+      toast.error('Please paste or enter your script content');
+      return;
+    }
+    setIsSavingCustom(true);
+    try {
+      await saveScript(projectId, {
+        title: title || 'Custom Video Script',
+        introduction: introduction || customScriptText,
+        scriptText: customScriptText || introduction,
+        ending: ending || 'Thank you for watching.',
+      });
+    } catch {
+      // Error handled by store toast
+    } finally {
+      setIsSavingCustom(false);
+    }
+  };
+
   if (!script) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-4">
-        <div className="h-16 w-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-          <FileText className="h-8 w-8" />
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-6 max-w-xl mx-auto">
+        <div className="h-14 w-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+          <FileText className="h-7 w-7" />
         </div>
-        <h3 className="text-lg font-bold text-white">No Script Generated Yet</h3>
-        <p className="text-xs text-white/50 max-w-md">
-          Click below to let AIWriter craft a complete narrative script based on your topic.
-        </p>
-        <Button onClick={onGenerate} isLoading={isGenerating} leftIcon={<Sparkles className="h-4 w-4" />}>
+        <div>
+          <h3 className="text-lg font-bold text-white">No Script Found for this Project</h3>
+          <p className="text-xs text-white/50 mt-1">
+            Generate a fresh script using AIWriter or paste your own custom script below to generate scenes & narration.
+          </p>
+        </div>
+
+        <div className="w-full space-y-3 text-left bg-white/[0.02] border border-white/10 rounded-xl p-4">
+          <label className="text-xs font-semibold text-purple-400">Paste Your Own Custom Script</label>
+          <Textarea
+            value={customScriptText}
+            onChange={(e) => setCustomScriptText(e.target.value)}
+            placeholder="Paste your narration script or story paragraphs here..."
+            rows={5}
+            className="text-sm bg-black/40 text-white border-white/10"
+          />
+          <Button
+            onClick={handleSaveCustom}
+            isLoading={isSavingCustom}
+            variant="primary"
+            size="sm"
+            className="w-full"
+            leftIcon={<Save className="h-3.5 w-3.5" />}
+          >
+            Create Scenes & Voice from My Script
+          </Button>
+        </div>
+
+        <div className="relative w-full flex items-center justify-center">
+          <div className="border-t border-white/10 w-full" />
+          <span className="bg-[#050512] px-3 text-[11px] text-white/40 uppercase font-semibold absolute">or</span>
+        </div>
+
+        <Button onClick={onGenerate} isLoading={isGenerating} variant="outline" size="sm" leftIcon={<Sparkles className="h-4 w-4" />}>
           Generate Script with AIWriter
         </Button>
       </div>
@@ -56,15 +111,19 @@ export const ScriptEditor = ({ script, onGenerate, isGenerating }: ScriptEditorP
   }
 
   const handleCopy = () => {
-    const fullText = `${title}\n\n${introduction}\n\n${script.chapters.map((c) => c.content).join('\n\n')}\n\n${ending}`;
+    const fullText = `${title}\n\n${introduction}\n\n${(script.chapters || []).map((c) => c.content).join('\n\n')}\n\n${ending}`;
     navigator.clipboard.writeText(fullText);
     setCopied(true);
     toast.success('Script copied to clipboard');
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSave = () => {
-    toast.success('Script updated!');
+  const handleSave = async () => {
+    if (!projectId) {
+      toast.success('Script updated!');
+      return;
+    }
+    await handleSaveCustom();
   };
 
   return (

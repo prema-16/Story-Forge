@@ -96,14 +96,90 @@ export const getProject = asyncHandler(async (req: AuthRequest, res: Response): 
   const project = await Project.findOne({ _id: projectId, userId: req.user!._id });
   if (!project) throw new AppError('Project not found', 404);
 
-  const [script, scenes, thumbnail, voice] = await Promise.all([
+  const [script, scenes, thumbnail, voice, exports] = await Promise.all([
     Script.findOne({ projectId: project._id, isActive: true }).lean(),
     Scene.find({ projectId: project._id }).sort({ order: 1 }).lean(),
     Thumbnail.findOne({ projectId: project._id, isSelected: true }).lean(),
     Voice.findOne({ projectId: project._id, isNarration: true, status: 'completed' }).lean(),
+    Export.find({ projectId: project._id }).sort({ createdAt: -1 }).lean(),
   ]);
 
-  sendSuccess(res, { project, script, scenes, thumbnail, voice });
+  sendSuccess(res, { project, script, scenes, thumbnail, voice, exports });
+});
+
+export const saveCustomScript = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const projectId = req.params.id as string;
+  const project = await Project.findOne({ _id: projectId, userId: req.user!._id });
+  if (!project) throw new AppError('Project not found', 404);
+
+  const { title, introduction, chapters, ending, scriptText } = req.body;
+
+  // Deactivate existing scripts
+  await Script.updateMany({ projectId: project._id }, { isActive: false });
+
+  const rawScript = scriptText || introduction || project.idea;
+  const formattedChapters = Array.isArray(chapters) && chapters.length > 0
+    ? chapters.map((ch: any, idx: number) => ({
+        number: idx + 1,
+        title: ch.title || `Chapter ${idx + 1}`,
+        content: typeof ch === 'string' ? ch : ch.content || '',
+        duration: ch.duration || 30,
+        wordCount: (typeof ch === 'string' ? ch : ch.content || '').split(/\s+/).filter(Boolean).length,
+      }))
+    : [
+        {
+          number: 1,
+          title: 'Custom Script Chapter 1',
+          content: rawScript,
+          duration: Math.max(15, Math.ceil(rawScript.split(/\s+/).filter(Boolean).length / 2.5)),
+          wordCount: rawScript.split(/\s+/).filter(Boolean).length,
+        },
+      ];
+
+  const fullContent = [introduction, ...formattedChapters.map((c: any) => c.content), ending].filter(Boolean).join('\n\n');
+  const totalWordCount = fullContent.split(/\s+/).filter(Boolean).length;
+
+  const script = await Script.create({
+    projectId: project._id,
+    userId: req.user!._id,
+    title: title || project.title,
+    introduction: introduction || rawScript,
+    chapters: formattedChapters,
+    ending: ending || 'Thank you for watching.',
+    totalWordCount,
+    estimatedDuration: Math.ceil(totalWordCount / 2.5),
+    provider: 'user-custom',
+    model: 'custom',
+    version: 1,
+    isActive: true,
+  });
+
+  // Auto-generate scenes matching the custom script
+  const sceneData = formattedChapters.map((ch: any, idx: number) => ({
+    sceneNumber: idx + 1,
+    title: ch.title || `Scene ${idx + 1}`,
+    duration: Math.max(10, Math.ceil((ch.wordCount || 30) / 2.5)),
+    narration: ch.content,
+    visualDescription: `Cinematic visual scene for: ${ch.title}`,
+    cameraMovement: idx % 2 === 0 ? 'Slow push in' : 'Pan right',
+    soundEffects: ['ambient atmospheric sound'],
+    backgroundMusic: 'Cinematic soundtrack',
+    mood: 'cinematic',
+    order: idx + 1,
+    projectId: project._id,
+    scriptId: script._id,
+    userId: req.user!._id,
+  }));
+
+  await Scene.deleteMany({ projectId: project._id });
+  const scenes = await Scene.insertMany(sceneData);
+
+  project.status = 'draft';
+  project.currentStep = 2;
+  await project.save();
+
+  await createAuditLog(req, 'project.update', { resourceId: project._id.toString(), metadata: { customScript: true } });
+  sendSuccess(res, { script, scenes, project }, 'Custom script saved and scenes generated successfully', 200);
 });
 
 export const deleteProject = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {

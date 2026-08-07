@@ -125,6 +125,7 @@ interface StudioState {
   generateThumbnail: (id: string) => Promise<void>;
   generateSEO: (id: string) => Promise<void>;
   generateVideo: (id: string) => Promise<void>;
+  saveScript: (id: string, data: { title?: string; introduction?: string; chapters?: Array<{ title?: string; content?: string }>; ending?: string; scriptText?: string }) => Promise<void>;
 
   // SSE
   connectSSE: (projectId: string) => void;
@@ -403,9 +404,10 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   generateVideo: async (id: string) => {
     set((state) => ({ isGenerating: { ...state.isGenerating, video: true } }));
     try {
-      await projectsApi.generateScenes(id);
+      const res = await projectsApi.renderVideo(id);
+      if (res?.jobId) set({ activeJobId: res.jobId });
       await get().loadProject(id);
-      toast.success('Video render queued!');
+      toast.success('Video render queued! Processing video pipeline...');
     } catch (err: any) {
       toast.error(err.message || 'Video render failed');
     } finally {
@@ -413,8 +415,83 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     }
   },
 
-  connectSSE: () => {},
-  disconnectSSE: () => {},
+  saveScript: async (id: string, data) => {
+    set((state) => ({ isGenerating: { ...state.isGenerating, script: true } }));
+    try {
+      const res = await projectsApi.saveScript(id, data);
+      if (res?.script) set({ script: res.script });
+      if (res?.scenes) set({ scenes: res.scenes });
+      await get().loadProject(id);
+      toast.success('Custom script saved & scenes updated!');
+    } catch (err: any) {
+      toast.error(err.message || 'Saving custom script failed');
+    } finally {
+      set((state) => ({ isGenerating: { ...state.isGenerating, script: false } }));
+    }
+  },
+
+  connectSSE: (projectId: string) => {
+    const existing = get().sseConnection;
+    if (existing) existing.close();
+
+    try {
+      const { getApiBaseUrl } = require('../lib/api');
+      const baseUrl = getApiBaseUrl();
+      const eventSource = new EventSource(`${baseUrl}/sse/projects/${projectId}/status`);
+
+      eventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.type === 'step_progress') {
+            set({ generationProgress: data.progress || 0 });
+          }
+          if (data.type === 'step_completed') {
+            get().addLog({
+              type: 'success',
+              message: data.message || `${data.step || 'Step'} completed`,
+              timestamp: new Date().toLocaleTimeString(),
+              step: data.step,
+            });
+            get().loadProject(projectId);
+          }
+          if (data.type === 'step_failed') {
+            get().addLog({
+              type: 'error',
+              message: data.error || `${data.step || 'Step'} failed`,
+              timestamp: new Date().toLocaleTimeString(),
+              step: data.step,
+            });
+            get().loadProject(projectId);
+          }
+        } catch (err) {
+          console.error('[SSE] Parse error:', err);
+        }
+      };
+
+      eventSource.onerror = () => {
+        eventSource.close();
+      };
+
+      set({
+        sseConnection: {
+          projectId,
+          eventSource,
+          close: () => eventSource.close(),
+        },
+      });
+    } catch (err) {
+      console.warn('[SSE] Connection error:', err);
+    }
+  },
+
+  disconnectSSE: () => {
+    const existing = get().sseConnection;
+    if (existing) {
+      existing.close();
+      set({ sseConnection: null });
+    }
+  },
+
   addLog: (log) => set((state) => ({ generationLogs: [log, ...state.generationLogs] })),
 
   // NLE Timeline Actions

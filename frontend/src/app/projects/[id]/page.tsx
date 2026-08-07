@@ -220,7 +220,7 @@ export default function StudioPage() {
                       else if (step === 'thumbnail') generateThumbnail(id);
                       else if (step === 'seo') generateSEO(id);
                     }} />}
-                    {activeTab === 'script' && <ScriptEditor script={script} isGenerating={isGenerating.script} onGenerate={() => generateScript(id)} />}
+                    {activeTab === 'script' && <ScriptEditor script={script} projectId={id} isGenerating={isGenerating.script} onGenerate={() => generateScript(id)} />}
                     {activeTab === 'scenes' && <SceneCards scenes={scenes} isGeneratingScenes={isGenerating.scenes} isGeneratingPrompts={isGenerating.prompts} onGenerateScenes={() => generateScenes(id)} onGeneratePrompts={() => generatePrompts(id)} />}
                     {activeTab === 'voice' && <VoicePanel voice={voice} isGenerating={isGenerating.voice} onGenerate={(opts) => generateVoice(id, opts)} />}
                     {activeTab === 'thumbnail' && <ThumbnailPanel thumbnail={thumbnail} isGenerating={isGenerating.thumbnail} onGenerate={() => generateThumbnail(id)} />}
