@@ -204,12 +204,13 @@ app.get('/api/admin/system-health', protect, restrictTo('admin', 'superadmin'), 
 });
 
 // Health / Readiness / Liveness / Metrics Probes
-app.get(['/health', '/api/health'], async (_req: Request, res: Response) => {
+app.get(['/', '/api', '/api/', '/health', '/api/health'], async (_req: Request, res: Response) => {
   const redisInfo = getRedisCurrentStatus();
   const mongoConnected = mongoose.connection.readyState === 1;
 
   res.json({
     status: mongoConnected ? 'ok' : 'degraded',
+    message: 'StoryForge AI Backend API Service is Active',
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
     version: '3.0.0',
