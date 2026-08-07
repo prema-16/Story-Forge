@@ -63,7 +63,21 @@ app.use(
 
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, '');
+      const cleanClientUrl = env.CLIENT_URL.replace(/\/$/, '');
+      if (
+        cleanOrigin === cleanClientUrl ||
+        env.NODE_ENV === 'development' ||
+        cleanOrigin.endsWith('.onrender.com') ||
+        cleanOrigin.endsWith('.vercel.app')
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow configured cross-origin frontend requests
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN'],

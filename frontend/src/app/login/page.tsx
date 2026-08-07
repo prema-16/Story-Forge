@@ -38,7 +38,13 @@ export default function LoginPage() {
       toast.success('Welcome back! 🎉');
       router.push('/dashboard');
     } catch (err: unknown) {
-      const msg = (err as any)?.response?.data?.error ?? 'Login failed. Please check your credentials.';
+      const errorObj = err as any;
+      const msg =
+        errorObj?.response?.data?.error ||
+        errorObj?.response?.data?.message ||
+        (errorObj?.code === 'ERR_NETWORK' || !errorObj?.response
+          ? 'Unable to connect to server. Please check if the backend service is running.'
+          : errorObj?.message || 'Login failed. Please check your credentials.');
       toast.error(msg);
     }
   };

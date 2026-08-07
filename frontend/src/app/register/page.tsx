@@ -38,7 +38,13 @@ export default function RegisterPage() {
       toast.success('Account created! Welcome to StoryForge 🎬');
       router.push('/dashboard');
     } catch (err: unknown) {
-      const msg = (err as any)?.response?.data?.error ?? 'Registration failed. Please try again.';
+      const errorObj = err as any;
+      const msg =
+        errorObj?.response?.data?.error ||
+        errorObj?.response?.data?.message ||
+        (errorObj?.code === 'ERR_NETWORK' || !errorObj?.response
+          ? 'Unable to connect to server. Please check if the backend service is running.'
+          : errorObj?.message || 'Registration failed. Please try again.');
       toast.error(msg);
     }
   };
