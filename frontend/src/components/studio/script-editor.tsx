@@ -16,6 +16,7 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Script } from '../../lib/api';
+import { useStudioStore } from '../../store/studioStore';
 import toast from 'react-hot-toast';
 
 interface ScriptEditorProps {
