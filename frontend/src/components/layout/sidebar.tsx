@@ -248,5 +248,6 @@ export const Sidebar = () => {
         </button>
       </div>
     </motion.aside>
+  </>
   );
 };
