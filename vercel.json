@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://storyforge-backend.onrender.com/api/:path*"
+      "destination": "https://storyforge-backend-lxu1.onrender.com/api/:path*"
     }
   ]
 }
