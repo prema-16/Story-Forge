@@ -110,6 +110,20 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(sanitizeInput);
 
+// Database Connectivity Guard — Return fast 503 instead of buffering timeouts if DB is disconnected
+app.use('/api', (req: Request, res: Response, next: NextFunction): void => {
+  const isHealthPath = ['/', '/api', '/api/', '/health', '/api/health', '/ready', '/live'].includes(req.path);
+  if (!isHealthPath && mongoose.connection.readyState !== 1) {
+    res.status(503).json({
+      success: false,
+      error: 'Database connection unavailable. Please check your MONGODB_URI credentials in backend/.env or start MongoDB.',
+      code: 'DATABASE_UNAVAILABLE',
+    });
+    return;
+  }
+  next();
+});
+
 // Request Logging
 if (env.NODE_ENV !== 'test') {
   app.use(

@@ -7,16 +7,24 @@ let isConnected = false;
 export async function connectDatabase(): Promise<void> {
   if (isConnected) return;
 
+  const primaryUri = env.MONGODB_URI;
+  const isPlaceholder = primaryUri.includes('<') || primaryUri.includes('NEW_PASSWORD');
+  const targetUri = isPlaceholder ? 'mongodb://127.0.0.1:27017/storyforge' : primaryUri;
+
+  if (isPlaceholder) {
+    logger.warn('⚠️ MONGODB_URI contains placeholder <NEW_PASSWORD>. Attempting local MongoDB fallback (mongodb://127.0.0.1:27017/storyforge)...');
+  }
+
   try {
     mongoose.set('strictQuery', true);
 
-    await mongoose.connect(env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
+    await mongoose.connect(targetUri, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
     });
 
     isConnected = true;
-    logger.info('✅ MongoDB connected successfully');
+    logger.info(`✅ MongoDB connected successfully (${isPlaceholder ? 'local fallback' : 'configured URI'})`);
 
     // Seed database items
     await seedSubscriptionPlans();
@@ -31,9 +39,21 @@ export async function connectDatabase(): Promise<void> {
       logger.error('MongoDB connection error:', err);
       isConnected = false;
     });
-  } catch (err) {
-    logger.error('❌ MongoDB connection failed:', err);
-    throw err;
+  } catch (err: any) {
+    if (!isPlaceholder && targetUri !== 'mongodb://127.0.0.1:27017/storyforge') {
+      logger.warn('⚠️ Primary MongoDB connection failed. Attempting local MongoDB fallback...');
+      try {
+        await mongoose.connect('mongodb://127.0.0.1:27017/storyforge', { serverSelectionTimeoutMS: 3000 });
+        isConnected = true;
+        logger.info('✅ Local MongoDB fallback connected successfully');
+        await seedSubscriptionPlans();
+        await seedDemoUser();
+        return;
+      } catch {
+        logger.error('❌ Local MongoDB fallback also unreachable.');
+      }
+    }
+    logger.error('❌ MongoDB connection failed:', err.message || err);
   }
 }
 
