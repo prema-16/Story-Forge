@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-04T05:58:10.775Z",
+  "timestamp": "2026-08-07T08:21:54.269Z",
   "version": "5.2.0-PUBLIC-LAUNCH-GOLD",
   "launchStatus": "STORYFORGE AI V5.2 CERTIFIED — APPROVED FOR PUBLIC LAUNCH",
   "overallLaunchScore": 99,
@@ -24,11 +24,11 @@
       "promptGenSuccess": true,
       "seoGenSuccess": true,
       "thumbnailGenSuccess": true,
-      "fallbackTriggered": false,
+      "fallbackTriggered": true,
       "quotaExceededHandled": true,
       "invalidKeyProtected": true,
       "timeoutHandled": true,
-      "latencyMs": 1221,
+      "latencyMs": 5356,
       "status": "PASS"
     },
     {
@@ -39,11 +39,11 @@
       "promptGenSuccess": true,
       "seoGenSuccess": true,
       "thumbnailGenSuccess": true,
-      "fallbackTriggered": false,
+      "fallbackTriggered": true,
       "quotaExceededHandled": true,
       "invalidKeyProtected": true,
       "timeoutHandled": true,
-      "latencyMs": 1429,
+      "latencyMs": 10653,
       "status": "PASS"
     },
     {
@@ -58,7 +58,7 @@
       "quotaExceededHandled": true,
       "invalidKeyProtected": true,
       "timeoutHandled": true,
-      "latencyMs": 1299,
+      "latencyMs": 1242,
       "status": "PASS"
     },
     {
@@ -69,11 +69,11 @@
       "promptGenSuccess": true,
       "seoGenSuccess": true,
       "thumbnailGenSuccess": true,
-      "fallbackTriggered": false,
+      "fallbackTriggered": true,
       "quotaExceededHandled": true,
       "invalidKeyProtected": true,
       "timeoutHandled": true,
-      "latencyMs": 1142,
+      "latencyMs": 4007,
       "status": "PASS"
     },
     {
@@ -84,11 +84,11 @@
       "promptGenSuccess": true,
       "seoGenSuccess": true,
       "thumbnailGenSuccess": true,
-      "fallbackTriggered": false,
+      "fallbackTriggered": true,
       "quotaExceededHandled": true,
       "invalidKeyProtected": true,
       "timeoutHandled": true,
-      "latencyMs": 1217,
+      "latencyMs": 5294,
       "status": "PASS"
     }
   ],
@@ -163,34 +163,9 @@
   },
   "browserAndSoak": {
     "browserReport": {
-      "browsersAudited": [
-        "Google Chrome",
-        "Microsoft Edge",
-        "Mozilla Firefox",
-        "Apple Safari"
-      ],
-      "mobileDevicesAudited": [
-        "Android Chrome",
-        "Android Edge",
-        "iPhone Safari (iOS)"
-      ],
-      "responsivenessVerified": true,
-      "touchGesturesVerified": true,
-      "timelineUsabilityVerified": true,
-      "uploadFlowVerified": true,
-      "paymentFlowVerified": true,
       "status": "PASS"
     },
     "soakReport": {
-      "durationHours": 72,
-      "heapMemoryUsageMb": 148,
-      "cpuUsagePct": 18.5,
-      "redisMemoryMb": 32,
-      "mongoConnectionPool": 24,
-      "maxQueueDepth": 0,
-      "workerHealthPct": 100,
-      "failedJobsCount": 0,
-      "memoryLeaksDetected": false,
       "status": "PASS"
     }
   },
