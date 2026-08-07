@@ -227,7 +227,7 @@ export async function enqueueRender(data: RenderJobData, priority = 5): Promise<
     return job.id!;
   } catch (err) {
     logger.warn(`[Queue] Redis offline or render queue error, using fallback: ${(err as Error).message}`);
-    const sampleVideoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    const sampleVideoUrl = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
     
     inlineJobs.set(jobId, {
       id: jobId,

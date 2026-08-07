@@ -112,7 +112,17 @@ export default function MarketplacePage() {
 
         {/* Marketplace Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {items.map((item) => (
+          {items
+            .filter((item) => {
+              if (selectedCategory === 'all') return true;
+              if (selectedCategory === 'templates') return item.category === 'Video Templates';
+              if (selectedCategory === 'agents') return item.category === 'AI Agent Swarms';
+              if (selectedCategory === 'luts') return item.category === 'Color LUTs';
+              if (selectedCategory === 'voices') return item.category === 'Voice Packs';
+              if (selectedCategory === 'music') return item.category === 'Music Packs';
+              return true;
+            })
+            .map((item) => (
             <Card key={item.id} glass className="p-4 flex flex-col justify-between space-y-4 hover:border-purple-500/40 transition-all group">
               <div className="space-y-3">
                 <div className={`h-32 rounded-xl bg-gradient-to-br ${item.gradient} border border-white/10 p-3 flex flex-col justify-between`}>

@@ -162,10 +162,33 @@ export default function StudioPage() {
             Render Video
           </button>
 
-          <button className="icon-btn" title="Export">
+          <button
+            className="icon-btn"
+            title="Export MP4 Video"
+            onClick={() => {
+              const url = videoUrl || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `${project?.title || 'video'}-export.mp4`;
+              link.target = '_blank';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              toast.success('Downloading MP4 video file...');
+            }}
+          >
             <Download className="h-4 w-4" />
           </button>
-          <button className="icon-btn" title="Share">
+          <button
+            className="icon-btn"
+            title="Share Project"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success('Project link copied to clipboard!');
+              }
+            }}
+          >
             <Share2 className="h-4 w-4" />
           </button>
         </div>

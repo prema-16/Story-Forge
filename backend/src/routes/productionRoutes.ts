@@ -80,7 +80,7 @@ router.post('/publish', asyncHandler(async (req: Request, res: Response) => {
   const results = await publishingEngine.publishToPlatforms({
     id: `pub_${Date.now()}`,
     projectId: projectId || 'demo-proj-1',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
     platforms: platforms || ['youtube', 'tiktok'],
     title: title || 'Quantum Physics: Secrets of the Universe',
     description: description || 'Exploring quantum entanglement.',

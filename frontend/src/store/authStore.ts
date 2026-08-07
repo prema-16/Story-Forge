@@ -102,6 +102,9 @@ export const useAuthStore = create<AuthState>()(
         try { await authApi.logout(); } catch {}
         api.clearToken();
         set({ user: null, accessToken: null, isAuthenticated: false });
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       },
 
       fetchMe: async () => {
@@ -126,9 +129,14 @@ export const useAuthStore = create<AuthState>()(
         try {
           const result = await authApi.me();
           set({ user: result.user, isAuthenticated: true });
-        } catch {
-          api.clearToken();
-          set({ user: null, isAuthenticated: false, accessToken: null });
+        } catch (err: any) {
+          // If server returns explicit 401, clear session. Otherwise retain existing authenticated session if token exists.
+          if (err?.response?.status === 401) {
+            api.clearToken();
+            set({ user: null, isAuthenticated: false, accessToken: null });
+          } else if (get().user && get().accessToken) {
+            set({ isAuthenticated: true });
+          }
         }
       },
 

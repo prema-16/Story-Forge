@@ -365,7 +365,7 @@ export const getJobStatusHandler = asyncHandler(async (req: AuthRequest, res: Re
       name: 'render-video',
       state: 'completed',
       progress: 100,
-      result: { videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
+      result: { videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
       failedReason: null,
       attempts: 1,
       createdAt: new Date().toISOString(),

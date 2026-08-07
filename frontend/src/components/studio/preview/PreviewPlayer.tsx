@@ -57,7 +57,7 @@ export const PreviewPlayer: React.FC = () => {
       <div className="flex-1 relative flex items-center justify-center bg-black overflow-hidden group">
         <video
           ref={videoRef}
-          src={videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}
+          src={videoUrl || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4'}
           onTimeUpdate={handleTimeUpdate}
           className="max-h-full max-w-full object-contain aspect-video shadow-2xl"
         />

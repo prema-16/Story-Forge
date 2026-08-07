@@ -74,7 +74,7 @@ export default function ShortsPlaygroundPage() {
                 <div className="sample-output">
                   <div className="sample-badge">GEN-RESULT READY</div>
                   <video
-                    src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                    src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
                     autoPlay
                     muted
                     loop

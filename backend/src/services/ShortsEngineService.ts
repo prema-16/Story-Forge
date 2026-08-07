@@ -150,7 +150,7 @@ export class ShortsEngineService {
       voiceCategory: 'storyteller',
       musicGenre: 'epic_cinematic',
       status: 'ready',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
       creditsUsed: 12,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

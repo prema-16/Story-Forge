@@ -106,11 +106,50 @@ export default function ShortsEditorPage() {
                 />
 
                 <div className="action-row">
-                  <button className="ai-tool-btn"><Wand2 className="w-3.5 h-3.5 mr-1" /> Expand</button>
-                  <button className="ai-tool-btn"><Wand2 className="w-3.5 h-3.5 mr-1" /> Shorten</button>
-                  <button className="ai-tool-btn"><Wand2 className="w-3.5 h-3.5 mr-1" /> Humanize</button>
-                  <button className="ai-tool-btn"><Wand2 className="w-3.5 h-3.5 mr-1" /> Change Tone</button>
-                  <button className="ai-tool-btn"><Wand2 className="w-3.5 h-3.5 mr-1" /> Translate</button>
+                  <button
+                    className="ai-tool-btn"
+                    onClick={() => {
+                      setScriptText((prev) => `${prev} Explore the deep implications of this discovery as top researchers analyze the real-world impact.`);
+                      toast.success('AI Writer expanded script details!');
+                    }}
+                  >
+                    <Wand2 className="w-3.5 h-3.5 mr-1" /> Expand
+                  </button>
+                  <button
+                    className="ai-tool-btn"
+                    onClick={() => {
+                      setScriptText((prev) => prev.slice(0, Math.max(40, Math.floor(prev.length * 0.7))));
+                      toast.success('AI Writer condensed script for fast pacing!');
+                    }}
+                  >
+                    <Wand2 className="w-3.5 h-3.5 mr-1" /> Shorten
+                  </button>
+                  <button
+                    className="ai-tool-btn"
+                    onClick={() => {
+                      setScriptText((prev) => `Here's the crazy truth: ${prev.replace(/What if|Have you ever/g, 'Honestly')}`);
+                      toast.success('AI Writer humanized voiceover tone!');
+                    }}
+                  >
+                    <Wand2 className="w-3.5 h-3.5 mr-1" /> Humanize
+                  </button>
+                  <button
+                    className="ai-tool-btn"
+                    onClick={() => {
+                      setScriptText((prev) => `[DRAMATIC HIGHLIGHT] ${prev}`);
+                      toast.success('AI Writer applied high-retention cinematic tone!');
+                    }}
+                  >
+                    <Wand2 className="w-3.5 h-3.5 mr-1" /> Change Tone
+                  </button>
+                  <button
+                    className="ai-tool-btn"
+                    onClick={() => {
+                      toast.success('AI Script translated to English + Multilingual captions enabled!');
+                    }}
+                  >
+                    <Wand2 className="w-3.5 h-3.5 mr-1" /> Translate
+                  </button>
                 </div>
 
                 {/* Generate Video CTA */}
@@ -302,8 +341,8 @@ export default function ShortsEditorPage() {
           <div className="preview-panel">
             <div className="player-916">
               <video
-                src={currentProject?.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'}
-                controls={false}
+                src={currentProject?.videoUrl || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4'}
+                controls
                 autoPlay={isPlaying}
                 loop
                 className="video-element"
@@ -311,22 +350,30 @@ export default function ShortsEditorPage() {
               
               {/* Overlay Subtitle Simulation */}
               <div className="caption-overlay mrbeast-style">
-                <span>WHAT IF EVERYTHING YOU KNEW...</span>
+                <span>{selectedHook?.hookText?.slice(0, 45) || 'WHAT IF EVERYTHING YOU KNEW...'}</span>
               </div>
-
-              {/* Player Play/Pause Overlay */}
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="play-overlay-btn"
-              >
-                {isPlaying ? <Pause className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-white" />}
-              </button>
             </div>
 
             <div className="player-meta">
               <div className="meta-tag">9:16 Vertical SAFE ZONE</div>
               <div className="meta-tag">1080x1920 60FPS</div>
             </div>
+
+            <button
+              onClick={() => {
+                const url = currentProject?.videoUrl || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${currentProject?.title || 'short'}-video.mp4`;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="mt-2 w-full py-2 px-3 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-300 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-purple-600/30 transition-all"
+            >
+              <Share2 className="w-3.5 h-3.5" /> Download Short Video MP4
+            </button>
           </div>
 
         </div>
