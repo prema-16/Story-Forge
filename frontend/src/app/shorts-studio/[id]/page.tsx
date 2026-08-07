@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { AppLayout } from '../../../components/layout/app-layout';
 import { useShortsStore } from '../../../store/shortsStore';
+import toast from 'react-hot-toast';
 
 export default function ShortsEditorPage() {
   const router = useRouter();

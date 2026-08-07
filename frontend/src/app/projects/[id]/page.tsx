@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useStudioStore } from '../../../store/studioStore';
 import { useAuthStore } from '../../../store/authStore';
+import toast from 'react-hot-toast';
 
 // ─── Sub-panels ─────────────────────────────────────────
 import { ScriptEditor } from '../../../components/studio/script-editor';
