@@ -125,7 +125,7 @@ interface StudioState {
   generateThumbnail: (id: string) => Promise<void>;
   generateSEO: (id: string) => Promise<void>;
   generateVideo: (id: string) => Promise<void>;
-  saveScript: (id: string, data: { title?: string; introduction?: string; chapters?: Array<{ title?: string; content?: string }>; ending?: string; scriptText?: string }) => Promise<void>;
+  saveScript: (id: string, data: { title?: string; introduction?: string; chapters?: Array<{ title?: string; content?: string }>; ending?: string; outro?: string; scriptText?: string }) => Promise<void>;
 
   // SSE
   connectSSE: (projectId: string) => void;

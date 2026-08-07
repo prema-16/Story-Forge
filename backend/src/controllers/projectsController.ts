@@ -112,40 +112,46 @@ export const saveCustomScript = asyncHandler(async (req: AuthRequest, res: Respo
   const project = await Project.findOne({ _id: projectId, userId: req.user!._id });
   if (!project) throw new AppError('Project not found', 404);
 
-  const { title, introduction, chapters, ending, scriptText } = req.body;
+  const { title, introduction, chapters, ending, outro, scriptText } = req.body;
+
+  const rawScript = (scriptText || introduction || project.idea || project.title || 'Default custom script narration.').trim();
 
   // Deactivate existing scripts
   await Script.updateMany({ projectId: project._id }, { isActive: false });
 
-  const rawScript = scriptText || introduction || project.idea;
   const formattedChapters = Array.isArray(chapters) && chapters.length > 0
-    ? chapters.map((ch: any, idx: number) => ({
-        number: idx + 1,
-        title: ch.title || `Chapter ${idx + 1}`,
-        content: typeof ch === 'string' ? ch : ch.content || '',
-        duration: ch.duration || 30,
-        wordCount: (typeof ch === 'string' ? ch : ch.content || '').split(/\s+/).filter(Boolean).length,
-      }))
+    ? chapters.map((ch: any, idx: number) => {
+        const contentStr = typeof ch === 'string' ? ch : ch.content || rawScript;
+        const words = contentStr.split(/\s+/).filter(Boolean).length;
+        return {
+          number: idx + 1,
+          title: (typeof ch === 'object' && ch.title) ? ch.title : `Chapter ${idx + 1}`,
+          content: contentStr || rawScript,
+          duration: Math.max(10, Math.ceil((words || 30) / 2.5)),
+          wordCount: words || 30,
+        };
+      })
     : [
         {
           number: 1,
           title: 'Custom Script Chapter 1',
           content: rawScript,
           duration: Math.max(15, Math.ceil(rawScript.split(/\s+/).filter(Boolean).length / 2.5)),
-          wordCount: rawScript.split(/\s+/).filter(Boolean).length,
+          wordCount: Math.max(10, rawScript.split(/\s+/).filter(Boolean).length),
         },
       ];
 
   const fullContent = [introduction, ...formattedChapters.map((c: any) => c.content), ending].filter(Boolean).join('\n\n');
-  const totalWordCount = fullContent.split(/\s+/).filter(Boolean).length;
+  const totalWordCount = Math.max(10, fullContent.split(/\s+/).filter(Boolean).length);
 
   const script = await Script.create({
     projectId: project._id,
     userId: req.user!._id,
-    title: title || project.title,
-    introduction: introduction || rawScript,
+    title: (title || project.title || 'Custom Video Script').trim(),
+    introduction: (introduction || rawScript).trim(),
     chapters: formattedChapters,
-    ending: ending || 'Thank you for watching.',
+    ending: (ending || 'Thank you for watching.').trim(),
+    outro: (outro || ending || 'Thank you for watching.').trim(),
     totalWordCount,
     estimatedDuration: Math.ceil(totalWordCount / 2.5),
     provider: 'user-custom',
@@ -159,12 +165,13 @@ export const saveCustomScript = asyncHandler(async (req: AuthRequest, res: Respo
     sceneNumber: idx + 1,
     title: ch.title || `Scene ${idx + 1}`,
     duration: Math.max(10, Math.ceil((ch.wordCount || 30) / 2.5)),
-    narration: ch.content,
-    visualDescription: `Cinematic visual scene for: ${ch.title}`,
+    narration: ch.content || rawScript,
+    visualDescription: `Cinematic visual scene for: ${ch.title || 'Scene ' + (idx + 1)}`,
     cameraMovement: idx % 2 === 0 ? 'Slow push in' : 'Pan right',
     soundEffects: ['ambient atmospheric sound'],
     backgroundMusic: 'Cinematic soundtrack',
     mood: 'cinematic',
+    status: 'completed' as const,
     order: idx + 1,
     projectId: project._id,
     scriptId: script._id,

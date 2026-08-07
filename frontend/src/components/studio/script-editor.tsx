@@ -57,6 +57,7 @@ export const ScriptEditor = ({ script, projectId, onGenerate, isGenerating }: Sc
         introduction: introduction || customScriptText,
         scriptText: customScriptText || introduction,
         ending: ending || 'Thank you for watching.',
+        outro: ending || 'Thank you for watching.',
       });
     } catch {
       // Error handled by store toast

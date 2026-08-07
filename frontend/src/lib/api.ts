@@ -173,7 +173,7 @@ export const projectsApi = {
   generateSEO: (id: string) => api.post<{ seo: SEOData; creditsUsed: number }>(`/projects/${id}/generate-seo`),
   renderVideo: (id: string, data?: { resolution?: string; format?: string; includeSubtitles?: boolean }) =>
     api.post<{ jobId: string }>(`/projects/${id}/render`, data),
-  saveScript: (id: string, data: { title?: string; introduction?: string; chapters?: Array<{ title?: string; content?: string }>; ending?: string; scriptText?: string }) =>
+  saveScript: (id: string, data: { title?: string; introduction?: string; chapters?: Array<{ title?: string; content?: string }>; ending?: string; outro?: string; scriptText?: string }) =>
     api.post<{ script: Script; scenes: Scene[] }>(`/projects/${id}/script`, data),
 };
 
